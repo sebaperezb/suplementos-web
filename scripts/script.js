@@ -1,76 +1,110 @@
-
 // VARIABLES globales
-                              // NUMERO DE OPCIONES
-let precioBarrita = 300;        //1
-let precioProteina = 6000;      //2
-let precioAminoacido = 8000;   //3
+// OPCIONES
+
+let cursor = true;
+let opcion;
+
+// constructores
+
+class Producto {
+    constructor(id, nombre, precio) {
+        this.id = id;
+        this.nombre = nombre;
+        this.precio = precio;
+    }
+}
+
+// inicializando listas y objetos
+
+const carrito = [];
+
+const productos = [];
+
+productos.push(new Producto(1, "Barra de proteina", 200))
+productos.push(new Producto(2, "Gel energetico", 250))
+productos.push(new Producto(3, "Whey Protein 1kg", 5000))
+productos.push(new Producto(4, "Aminoacidos BCAA", 7500))
+productos.push(new Producto(5, "Aminoacidos premium", 10000))
 
 
-let menu; 
-
-let cantidadBarritas = 0;
-let cantidadProteina = 0;
-let cantidadAminoacidos = 0;
-
-let costoTotalBarritas = 0;
-let costoTotalProteina = 0;
-let costoTotalAminoacidos = 0;
-
-let carrito = 0;
+// programa
 
 alert("Hola bienvenido a la tienda de insumos deportivos!");
 
 do {
-    carrito = comprar() + carrito;
 
-    continuarCompra();
+    switch (ayudaMenu()) {
+        case 1:
+            comprar();
+            break;
+        case 2:
+            verCarrito();
+            break;
+        case 3:
+            cursor = false;
+            terminarCompra();
+            break;
+    }
 
-} while (menu === true);
+} while (cursor === true);
 
-console.log("SU COMPRA HA SIDO EXITOSA!!! \n N° de Whey Protein 1kg : " + cantidadProteina + " | Costo: " +  costoTotalProteina + " \n N° de Barritas proteicas : " + cantidadBarritas + " | Costo: " +  costoTotalBarritas + " \n N° Aminoacidos BCAA : " + cantidadAminoacidos + " | Costo: " +  costoTotalAminoacidos + "\n Precio final de su compra: " + carrito);
+alert("SU COMPRA HA SIDO EXITOSA!!! Se le ha enviado un mensaje a su correo con los detalles de la compra (CONSOLA)");
 
-alert("SU COMPRA HA SIDO EXITOSA!!! Se le ha enviado mensaje a su correo con los detalles de la compra (CONSOLA)");
 
 // <>
 
+// funciones
+
+
+function ayudaMenu() {
+    opcion = parseInt(prompt("Ingrese una opcion \n 1) Comprar\n 2) Ver carrito\n 3)Terminar compra"));
+    if ((opcion != 1) && (opcion != 2) && (opcion != 3)) {
+        alert("Ha ingresado un valor invalido! Cierre esta ventana para reintentar operación")
+        ayudaMenu();
+    }
+    return opcion;
+}
+
 function comprar() {
-    let compra = parseInt(prompt("Ingrese un producto: \n 1) Whey Protein 1kg $6000 \n 2) Barrita proteica $300 \n 3) Aminoacidos BCAA $8000"));
-    if ((compra != 1) && (compra != 2) && (compra != 3)) {
+    let cantidad = 0;
+    let compra = parseInt(prompt("Ingrese un producto: \n 1) Barrita proteica $200 \n 2) Gel energetico $250 \n 3) Whey Protein 1kg $5000 \n 4) Aminoacidos BCAA $7500 \n 5) Aminoacidos Premium $10000"));
+    if ((compra != 1) && (compra != 2) && (compra != 3) && (compra != 4) && (compra != 5)) {
         alert("Ha ingresado un valor invalido! Cierre esta ventana para reintentar operación")
         comprar();
     }
-    switch (compra) {
-        case 1:
-            cantidadProteina = parseInt(prompt("Ingrese cantidad de unidades:")) + cantidadProteina;
-            costoTotalProteina = costoTotalProteina + sumarProductos(precioProteina, cantidadProteina);
-            return sumarProductos(precioProteina, cantidadProteina);
-        case 2:
-            cantidadBarritas = parseInt(prompt("Ingrese cantidad de unidades:")) + cantidadBarritas;
-            costoTotalBarritas = costoTotalBarritas + sumarProductos(precioBarrita, cantidadBarritas);
-            return sumarProductos(precioBarrita, cantidadBarritas);
-        case 3:
-            cantidadAminoacidos = parseInt(prompt("Ingrese cantidad de unidades:")) + cantidadAminoacidos;
-            costoTotalAminoacidos = costoTotalAminoacidos + sumarProductos(precioAminoacido, cantidadAminoacidos);
-            return sumarProductos(precioAminoacido, cantidadAminoacidos);
+
+    cantidad = parseInt(prompt("Ingrese cantidad de unidades:"));
+    for (i = 0; i < cantidad; i++) {
+        carrito.push(productos.find((elemento) => elemento.id === compra));
     }
 }
 
-function sumarProductos(precioProducto, cantidad) {
-    let costo = precioProducto * cantidad;
-    return costo;
-}
+function terminarCompra() {
 
+    let total;
+    let seguir2 = prompt("Desea terminar su compra? \n (S/N)");
 
-function continuarCompra() {
-
-    let seguir = prompt("Desea agregar mas productos? \n (S/N)");
-
-    if (seguir == "S") {
-        menu = true;
-    } else if (seguir === "N") {
-        menu = false;
+    if (seguir2 === "S") {
+        total = carrito.reduce((acumulado, elemento) => acumulado + elemento.precio, 0);
+        verCarrito();
+        console.log("Monto total: $" + total + "\n" + new Date())
+    } else if (seguir2 == "N") {
+        cursor = true;
     } else {
         alert("Ha ingresado un valor invalido... Intente de nuevo");
-        continuarCompra();
+        terminarCompra();
     }
+}
+
+function verCarrito() {
+
+    console.log("-------------------------------------")
+    const barritas = carrito.filter((elemento) => elemento.id == 1);
+    const geles = carrito.filter((elemento) => elemento.id == 2);
+    const proteinas = carrito.filter((elemento) => elemento.id == 3);
+    const aminoacidos = carrito.filter((elemento) => elemento.id == 4);
+    const aminoacidosPremium = carrito.filter((elemento) => elemento.id == 5);
+
+    alert("Barritas : " + barritas.length + " | $" + barritas.length * 200 + "\n" + "Geles : " + geles.length + " | $" + geles.length * 250 + "\n" + "Proteinas : " + proteinas.length + " | $" + proteinas.length * 5000 + "\n" + "aminoacidos : " + aminoacidos.length + " | $" + aminoacidos.length * 7500 + "\n" + "Aminoacidos premium : " + aminoacidosPremium.length + " | $" + aminoacidosPremium.length * 10000);
+    console.log("Barritas : " + barritas.length + " | $" + barritas.length * 200 + "\n" + "Geles : " + geles.length + " | $" + geles.length * 250 + "\n" + "Proteinas : " + proteinas.length + " | $" + proteinas.length * 5000 + "\n" + "aminoacidos : " + aminoacidos.length + " | $" + aminoacidos.length * 7500 + "\n" + "Aminoacidos premium : " + aminoacidosPremium.length + " | $" + aminoacidosPremium.length * 10000);
 }
