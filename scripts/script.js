@@ -7,10 +7,11 @@ let opcion;
 // constructores
 
 class Producto {
-    constructor(id, nombre, precio) {
+    constructor(id, nombre, precio ,imagen) {
         this.id = id;
         this.nombre = nombre;
         this.precio = precio;
+        this.imagen = imagen;
     }
 }
 
@@ -20,91 +21,82 @@ const carrito = [];
 
 const productos = [];
 
-productos.push(new Producto(1, "Barra de proteina", 200))
-productos.push(new Producto(2, "Gel energetico", 250))
-productos.push(new Producto(3, "Whey Protein 1kg", 5000))
-productos.push(new Producto(4, "Aminoacidos BCAA", 7500))
-productos.push(new Producto(5, "Aminoacidos premium", 10000))
-
+productos.push(new Producto(1, "Barra de proteina", 200, "./images/barrita.jpg"))
+productos.push(new Producto(2, "Gel energetico", 250, "./images/gel.jpg"))
+productos.push(new Producto(3, "Whey Protein 1kg", 5000, "./images/papota.webp"))
+productos.push(new Producto(4, "Aminoacidos BCAA", 7500, "./images/bcaa.webp"))
+productos.push(new Producto(5, "Aminoacidos premium", 10000, "./images/bcaaPremium.jpg"))
 
 // programa
 
-alert("Hola bienvenido a la tienda de insumos deportivos!");
+const guardarLocal = (clave, valor) => { localStorage.setItem(clave, valor) };
 
-do {
+guardarLocal("productos", JSON.stringify(productos))
 
-    switch (ayudaMenu()) {
-        case 1:
-            comprar();
-            break;
-        case 2:
-            verCarrito();
-            break;
-        case 3:
-            cursor = false;
-            terminarCompra();
-            break;
-    }
+// agarrando los elementos HTML que necesito modificar con JS
 
-} while (cursor === true);
+const contenedorProductos = document.getElementById('contenedor-productos')
 
-alert("SU COMPRA HA SIDO EXITOSA!!! Se le ha enviado un mensaje a su correo con los detalles de la compra (CONSOLA)");
+const contenedorCarrito = document.getElementById('carrito-modal')
+
+// lista de productos en la tienda
+
+productos.forEach(producto => {
+    const div = document.createElement("div")
+    div.classList.add("producto")
+    div.innerHTML = `
+    <img src=${producto.imagen} alt= "">
+    <h3>${producto.nombre}</h3>
+    <p class="precioProducto">Precio:$ ${producto.precio}</p>
+    <button id="agregar${producto.id}" class="boton-agregar">Agregar <i class="fas fa-shopping-cart"></i></button>
+
+    `
+
+    // agrega el bloque creado con JS al HTML
+    contenedorProductos.appendChild(div)
+
+    const boton = document.getElementById(`agregar${producto.id}`)
+
+    boton.addEventListener("click", () => {
+        agregarCarrito(producto.id)
+        console.log(carrito)
+    })
+})
 
 
-// <>
-
-// funciones
-
-
-function ayudaMenu() {
-    opcion = parseInt(prompt("Ingrese una opcion \n 1) Comprar\n 2) Ver carrito\n 3)Terminar compra"));
-    if ((opcion != 1) && (opcion != 2) && (opcion != 3)) {
-        alert("Ha ingresado un valor invalido! Cierre esta ventana para reintentar operación")
-        ayudaMenu();
-    }
-    return opcion;
+const agregarCarrito = (idProducto) => {
+    const item = productos.find((prod) => prod.id === idProducto)
+    carrito.push(item)
+    actualizarCarrito()
 }
 
-function comprar() {
-    let cantidad = 0;
-    let compra = parseInt(prompt("Ingrese un producto: \n 1) Barrita proteica $200 \n 2) Gel energetico $250 \n 3) Whey Protein 1kg $5000 \n 4) Aminoacidos BCAA $7500 \n 5) Aminoacidos Premium $10000"));
-    if ((compra != 1) && (compra != 2) && (compra != 3) && (compra != 4) && (compra != 5)) {
-        alert("Ha ingresado un valor invalido! Cierre esta ventana para reintentar operación")
-        comprar();
-    }
+const actualizarCarrito = () => {
 
-    cantidad = parseInt(prompt("Ingrese cantidad de unidades:"));
-    for (i = 0; i < cantidad; i++) {
-        carrito.push(productos.find((elemento) => elemento.id === compra));
-    }
+
+    // reseteo
+    contenedorCarrito.innerHTML = ""
+
+    carrito.forEach((producto) => {
+        const div = document.createElement('div')
+        div.innerHTML = `
+        <p>${producto.nombre}</p>
+        <p>Precio:$${producto.precio}</p>
+        <button onclick="eliminarProductoCarrito(${producto.id})"><i class="fas fa-trash-alt"></i></button>
+        <hr>
+        `
+        //se añade el div creado
+        contenedorCarrito.appendChild(div)
+
+
+        // sube al almacenamiento local el carrito actualizado
+        localStorage.setItem('carrito', JSON.stringify(carrito))
+
+    })
 }
 
-function terminarCompra() {
-
-    let total;
-    let seguir2 = prompt("Desea terminar su compra? \n (S/N)");
-
-    if (seguir2 === "S") {
-        total = carrito.reduce((acumulado, elemento) => acumulado + elemento.precio, 0);
-        verCarrito();
-        console.log("Monto total: $" + total + "\n" + new Date())
-    } else if (seguir2 == "N") {
-        cursor = true;
-    } else {
-        alert("Ha ingresado un valor invalido... Intente de nuevo");
-        terminarCompra();
-    }
-}
-
-function verCarrito() {
-
-    console.log("-------------------------------------")
-    const barritas = carrito.filter((elemento) => elemento.id == 1);
-    const geles = carrito.filter((elemento) => elemento.id == 2);
-    const proteinas = carrito.filter((elemento) => elemento.id == 3);
-    const aminoacidos = carrito.filter((elemento) => elemento.id == 4);
-    const aminoacidosPremium = carrito.filter((elemento) => elemento.id == 5);
-
-    alert("Barritas : " + barritas.length + " | $" + barritas.length * 200 + "\n" + "Geles : " + geles.length + " | $" + geles.length * 250 + "\n" + "Proteinas : " + proteinas.length + " | $" + proteinas.length * 5000 + "\n" + "aminoacidos : " + aminoacidos.length + " | $" + aminoacidos.length * 7500 + "\n" + "Aminoacidos premium : " + aminoacidosPremium.length + " | $" + aminoacidosPremium.length * 10000);
-    console.log("Barritas : " + barritas.length + " | $" + barritas.length * 200 + "\n" + "Geles : " + geles.length + " | $" + geles.length * 250 + "\n" + "Proteinas : " + proteinas.length + " | $" + proteinas.length * 5000 + "\n" + "aminoacidos : " + aminoacidos.length + " | $" + aminoacidos.length * 7500 + "\n" + "Aminoacidos premium : " + aminoacidosPremium.length + " | $" + aminoacidosPremium.length * 10000);
+const eliminarProductoCarrito = (idProducto) => {
+    const producto = carrito.find((prod) => prod.id === idProducto)
+    const indice = carrito.indexOf(producto)
+    carrito.splice(indice, 1)
+    actualizarCarrito()
 }
